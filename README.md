@@ -11,6 +11,9 @@ ZAP baseline scan of OWASP Juice Shop, a deliberately insecure practice app, run
 ## Findings
 See FINDINGS.md. The first scan reported 0 failures, 7 warnings and 61 passes. The report lists 9 alerts (2 Medium, 4 Low, 3 Informational), mostly missing or loose HTTP security headers.
 
+## Security gate
+`zap/rules.conf` marks two rules as FAIL: Content Security Policy (CSP) Header Not Set and Cross-Domain Misconfiguration. Locally, the scan reported FAIL-NEW: 2 and exited with code 1. In CI, the job passes only when ZAP exits with exactly 1 and both report files exist, which proves the gate fires on the deliberately vulnerable Juice Shop. On a real application the check would be inverted: the job would require exit code 0.
+
 ## Ground rules
 - Only the Juice Shop container on my own computer or on the CI runner is scanned, never anyone else's site.
 - Passive baseline scan only, with no active attack scan.
