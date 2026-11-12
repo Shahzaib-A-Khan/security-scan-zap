@@ -12,4 +12,5 @@ services:
       - juice-shop
     volumes:
       - ./reports:/zap/wrk:rw
-    command: zap-baseline.py -t http://juice-shop:3000 -r report.html -J report.json -I
+      - ./zap:/zap/config:ro
+    command: zap-baseline.py -t http://juice-shop:3000 -c /zap/config/rules.conf -r report.html -J report.json -I
