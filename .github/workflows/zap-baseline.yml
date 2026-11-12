@@ -19,11 +19,22 @@ jobs:
         run: docker compose up -d juice-shop
       - name: Wait for Juice Shop
         run: timeout 120 bash -c 'until curl -sf http://localhost:3000 > /dev/null; do sleep 3; done'
-      - name: Run ZAP baseline scan
+      - name: Run ZAP baseline scan (the gate must fire on Juice Shop)
         run: |
+          rm -rf reports
           mkdir -p reports
           chmod 777 reports
+          set +e
           docker compose run --rm zap
+          code=$?
+          echo "ZAP exit code: $code"
+          if [ "$code" -ne 1 ]; then
+            echo "Expected exit code 1: the gate should fail the scan because Juice Shop has Medium findings."
+            exit 1
+          fi
+          echo "The gate fired as expected."
+      - name: The reports must exist
+        run: test -s reports/report.html && test -s reports/report.json
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
